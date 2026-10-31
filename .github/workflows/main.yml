@@ -5,14 +5,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Cloud Server
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -25,18 +25,33 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev
+        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
 
     - name: Install Buildozer & Dependencies
       run: |
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
-    - name: Pre-configure Android SDK Tools and AIDL Path
+    - name: Manual Android SDK Setup (Fix sdkmanager not found)
       run: |
-        # Setup the direct path for aidl inside the runner environment
-        mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
-        sudo apt-get install -y aidl
+        # SDK के लिए सही डायरेक्टरी स्ट्रक्चर बनाना
+        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        
+        # Google के ऑफिशियल सर्वर से लेटेस्ट कमांड लाइन टूल्स डाउनलोड करना
+        cd ~/.buildozer/android/platform/android-sdk/cmdline-tools
+        wget https://google.com -O tools.zip
+        unzip tools.zip
+        
+        # फाइल्स को 'latest' फोल्डर में मूव करना जो Buildozer ढूंढता है
+        mv cmdline-tools/* latest/
+        rm -rf cmdline-tools tools.zip
+        
+        # पुराने टूल्स का पाथ बनाकर वहां लिंक करना ताकि Buildozer गुमराह न हो
+        mkdir -p ../tools/bin
+        ln -s ../cmdline-tools/latest/bin/sdkmanager ../tools/bin/sdkmanager
+        
+        # लायसेंस एक्सेप्ट करना
+        yes | latest/bin/sdkmanager --sdk_root=/home/runner/.buildozer/android/platform/android-sdk --licenses
 
     - name: Build with Buildozer
       run: |
