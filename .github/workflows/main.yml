@@ -32,12 +32,16 @@ jobs:
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
-    - name: Fix Android SDK AIDL Path Links
+    - name: Link GitHub Pre-installed Android SDK to Buildozer
       run: |
-        # Buildozer जिस लोकल फोल्डर में SDK बनाता है, वहां पहले से डायरेक्टरी स्ट्रक्चर तैयार करना
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
+        # Buildozer के लिए टारगेट डायरेक्टरी स्ट्रक्चर बनाना
+        mkdir -p /home/runner/.buildozer/android/platform/
         
-        # Ubuntu के सिस्टम 'aidl' को सीधे Buildozer के टारगेट फोल्डर से लिंक करना
+        # GitHub सर्वर की 100% रेडीमेड और ओरिजिनल SDK को सीधे Buildozer के टारगेट पाथ से लिंक करना
+        ln -s $ANDROID_HOME /home/runner/.buildozer/android/platform/android-sdk
+        
+        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
         ln -sf /usr/bin/aidl /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/aidl
 
     - name: Build with Buildozer (Memory-Optimized)
