@@ -1,4 +1,4 @@
-name: Build Android APK with Buildozer
+name: Build Android APK with Official Buildozer Action
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Cloud Server
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
@@ -17,49 +17,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build APK with Buildozer Action
+      uses: ArtemGovorov/buildozer-action@v1
       with:
-        python-version: '3.11'
-
-    - name: Install System Dependencies & AIDL
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
-
-    - name: Install Buildozer & Dependencies
-      run: |
-        pip install --upgrade pip
-        pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
-
-    - name: Trick Buildozer with Correct SDK, NDK and Legacy Symlinks
-      run: |
-        # Buildozer के लिए बेस डायरेक्टरी और उसके अंदर का Android SDK फोल्डर तैयार करना
-        mkdir -p /home/runner/.buildozer/android/platform/
-        
-        # GitHub सर्वर की ओरिजिनल SDK को यहाँ सॉफ्ट-लिंक करना
-        ln -s $ANDROID_HOME /home/runner/.buildozer/android/platform/android-sdk
-        
-        # लेगेसी पाथ बनाना जिसे Buildozer ढूंढ रहा है
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin/
-        ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-        
-        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
-        ln -sf /usr/bin/aidl /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/aidl
-
-    - name: Build with Buildozer (Memory & NDK Optimized)
-      run: |
-        # रैम लिमिट सेट करना
-        export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m -Dorg.gradle.workers.max=1"
-        
-        # ⚡ सबसे ज़रूरी: NDK 27 के क्रैश को रोकने के लिए कंपैटिबल NDK 25 का पाथ फोर्स करना
-        export ANDROID_NDK_HOME="/usr/local/lib/android/sdk/ndk/25.2.9519653"
-        export ANDROID_NDK_ROOT="/usr/local/lib/android/sdk/ndk/25.2.9519653"
-        
-        buildozer android debug
-      env:
-        ACCEPT_SDK_LICENSE_ACCEPTANCE: 'y'
+        buildozer_version: stable
+        command: buildozer android debug
+        repository_root: .
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
