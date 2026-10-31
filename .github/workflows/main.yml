@@ -32,27 +32,31 @@ jobs:
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
-    - name: Trick Buildozer with Correct SDK and Legacy Symlinks
+    - name: Trick Buildozer with Correct SDK, NDK and Legacy Symlinks
       run: |
-        # 1. Buildozer के लिए बेस डायरेक्टरी और उसके अंदर का Android SDK फोल्डर तैयार करना
+        # Buildozer के लिए बेस डायरेक्टरी और उसके अंदर का Android SDK फोल्डर तैयार करना
         mkdir -p /home/runner/.buildozer/android/platform/
         
-        # 2. GitHub सर्वर की ओरिजिनल SDK को यहाँ सॉफ्ट-लिंक करना
+        # GitHub सर्वर की ओरिजिनल SDK को यहाँ सॉफ्ट-लिंक करना
         ln -s $ANDROID_HOME /home/runner/.buildozer/android/platform/android-sdk
         
-        # 3. ⚡ सबसे ज़रूरी: वह लेगेसी पाथ बनाना जिसे Buildozer ढूंढ रहा है
+        # लेगेसी पाथ बनाना जिसे Buildozer ढूंढ रहा है
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin/
-        
-        # 4. सर्वर के असली sdkmanager को उस लेगेसी पाथ से लिंक कर देना ताकि एरर ख़त्म हो जाए
         ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
         
-        # 5. कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
+        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
         ln -sf /usr/bin/aidl /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/aidl
 
-    - name: Build with Buildozer (Memory-Optimized)
+    - name: Build with Buildozer (Memory & NDK Optimized)
       run: |
+        # रैम लिमिट सेट करना
         export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m -Dorg.gradle.workers.max=1"
+        
+        # ⚡ सबसे ज़रूरी: NDK 27 के क्रैश को रोकने के लिए कंपैटिबल NDK 25 का पाथ फोर्स करना
+        export ANDROID_NDK_HOME="/usr/local/lib/android/sdk/ndk/25.2.9519653"
+        export ANDROID_NDK_ROOT="/usr/local/lib/android/sdk/ndk/25.2.9519653"
+        
         buildozer android debug
       env:
         ACCEPT_SDK_LICENSE_ACCEPTANCE: 'y'
