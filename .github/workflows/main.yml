@@ -1,4 +1,4 @@
-name: Build Android APK with Official Buildozer Action
+name: Build Android APK with Kivy Docker
 
 on:
   workflow_dispatch:
@@ -11,18 +11,18 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - name: Cache Buildozer Global Directory
+      uses: actions/cache@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        path: .buildozer
+        key: ${{ runner.os }}-buildozer-${{ github.run_id }}
+        restore-keys: |
+          ${{ runner.os }}-buildozer-
 
-    - name: Build APK with Buildozer Action
-      uses: ArtemGovorov/buildozer-action@v1
+    - name: Build APK using Official Kivy Docker Image
+      uses: docker://kivy/buildozer:latest
       with:
-        buildozer_version: stable
-        command: buildozer android debug
-        repository_root: .
+        args: buildozer android debug
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
