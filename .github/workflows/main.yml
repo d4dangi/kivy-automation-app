@@ -32,15 +32,21 @@ jobs:
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
-    - name: Link GitHub Pre-installed Android SDK to Buildozer
+    - name: Trick Buildozer with Correct SDK and Legacy Symlinks
       run: |
-        # Buildozer के लिए टारगेट डायरेक्टरी स्ट्रक्चर बनाना
+        # 1. Buildozer के लिए बेस डायरेक्टरी और उसके अंदर का Android SDK फोल्डर तैयार करना
         mkdir -p /home/runner/.buildozer/android/platform/
         
-        # GitHub सर्वर की 100% रेडीमेड और ओरिजिनल SDK को सीधे Buildozer के टारगेट पाथ से लिंक करना
+        # 2. GitHub सर्वर की ओरिजिनल SDK को यहाँ सॉफ्ट-लिंक करना
         ln -s $ANDROID_HOME /home/runner/.buildozer/android/platform/android-sdk
         
-        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
+        # 3. ⚡ सबसे ज़रूरी: वह लेगेसी पाथ बनाना जिसे Buildozer ढूंढ रहा है
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin/
+        
+        # 4. सर्वर के असली sdkmanager को उस लेगेसी पाथ से लिंक कर देना ताकि एरर ख़त्म हो जाए
+        ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+        
+        # 5. कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
         mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
         ln -sf /usr/bin/aidl /home/runner/.buildozer/android/platform/android-sdk/build-tools/33.0.0/aidl
 
