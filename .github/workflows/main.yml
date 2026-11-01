@@ -32,16 +32,32 @@ jobs:
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
+    - name: Fix Buildozer Hardcoded Path Trap
+      run: |
+        # ⚡ वह लेगेसी फोल्डर स्ट्रक्चर बनाना जिसे Buildozer आंतरिक रूप से ढूंढ रहा है
+        sudo mkdir -p /usr/local/lib/android/sdk/tools/bin/
+        
+        # सर्वर के असली sdkmanager को उस लेगेसी पाथ से लिंक कर देना ताकि Buildozer कंफ्यूज न हो
+        sudo ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager
+        
+        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
+        sudo mkdir -p /usr/local/lib/android/sdk/build-tools/33.0.0/
+        sudo ln -sf /usr/bin/aidl /usr/local/lib/android/sdk/build-tools/33.0.0/aidl
+
     - name: Force Accept System SDK Licenses
       run: |
-        # GitHub के पहले से मौजूद SDK के सारे लाइसेंस को ऑटो-अप्रूव करना
         yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
     - name: Build with Buildozer
       run: |
-        # एनवायरनमेंट वेरिएबल्स को सीधे रीफ़्रेश करना
         export ANDROID_HOME=/usr/local/lib/android/sdk
         export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
         export ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/25.2.9519653
         
         buildozer android debug
+
+    - name: Upload Finished APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Finished-Android-APK
+        path: bin/*.apk
