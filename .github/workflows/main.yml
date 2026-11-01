@@ -1,24 +1,43 @@
-name: Build Android APK with Kivy Docker
+name: Build Android APK with Native Buildozer
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # स्टेबल एनवायरमेंट के लिए
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Build APK inside Fixed Docker Shell
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' # एकदम स्टेबल पायथन वर्जन Kivy के लिए
+
+    - name: Install System Dependencies
       run: |
-        # ⚡ यहाँ हमारा 'yes' इनपुट सीधे Docker के अंदर फोर्सफुली ट्रांसफर हो जाएगा
-        yes | docker run --rm \
-          -v ${{ github.workspace }}:/github/workspace \
-          --workdir /github/workspace \
-          kivy/buildozer:latest \
-          buildozer android debug
+        sudo apt-get update
+        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl traditional-awk
+
+    - name: Install Buildozer & Cython
+      run: |
+        pip install --upgrade pip
+        pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
+
+    - name: Build with Buildozer
+      run: |
+        # नेटिव रनर में यह बिना रूट के चलेगा, इसलिए कोई y/n का पॉपअप नहीं आएगा!
+        buildozer android debug
+      env:
+        ACCEPT_SDK_LICENSE_ACCEPTANCE: 'y'
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
