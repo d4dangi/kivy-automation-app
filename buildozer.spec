@@ -5,7 +5,7 @@ package.domain = org.architect
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
-requirements = python3==3.11.5,kivy,pyjnius
+requirements = python3,kivy,pyjnius
 
 # Android permissions
 android.permissions = INTERNET, WAKE_LOCK
