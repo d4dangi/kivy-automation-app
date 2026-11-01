@@ -25,13 +25,22 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        # ⚡ यहाँ से traditional-awk को हटा दिया गया है ताकि कोई एरर न आए
         sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
 
     - name: Install Buildozer & Cython
       run: |
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
+
+    - name: Auto-Accept Android SDK Licenses
+      run: |
+        # Buildozer का बेस पाथ पहले ही बना देना ताकि sdkmanager टूल्स को पहचाने
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+        
+        # Google के लाइसेंस एग्रीमेंट्स को ऑटोमैटिकली 'Yes' फीड करना
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
+        echo -e "893547e6f24752693858c1884f6b3d6c374f4c22\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de959a0045c849d275f48" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo -e "601085b94cd77f6b54b86885e83885753046f9d1" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
     - name: Build with Buildozer
       run: |
