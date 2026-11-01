@@ -25,7 +25,7 @@ jobs:
     - name: Install System Dependencies & Build Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf automake libtool libtool-bin pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
+        sudo apt-get install -y git zip unzip autoconf automake libtool libtool-bin m4 pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
 
     - name: Install Buildozer & Cython
       run: |
@@ -44,14 +44,16 @@ jobs:
       run: |
         yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-    - name: Build with Buildozer
+    - name: Build with Buildozer (Deep Clean Mode)
       run: |
-        # ⚡ टूलचेन और ग्लोबल एनवायरनमेंट के सभी वेरिएबल्स को NDK 25 पर पूरी तरह ओवरराइड करना
         export ANDROID_HOME=/usr/local/lib/android/sdk
         export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
         export ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/25.2.9519653
         export ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/25.2.9519653
         export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/25.2.9519653
+        
+        # ⚡ सीक्रेट पैच: पुराने डैमेज्ड कैश को पूरी तरह से डिलीट करना ताकि फ्रेश कम्पाइल शुरू हो
+        buildozer android clean
         
         buildozer android debug
 
