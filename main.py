@@ -12,7 +12,7 @@ from kivy.clock import Clock
 from kivy.graphics import Color, Ellipse
 from kivy.utils import platform
 
-# एंड्रॉइड स्पेसिफिक जावा ब्रिज (WakeLock के लिए)
+# Android Specific Java Bridge Imports for WakeLock
 if platform == 'android':
     from jnius import autoclass
     PythonActivity = autoclass('org.kivy.android.PythonActivity')
@@ -20,12 +20,12 @@ if platform == 'android':
     PowerManager = autoclass('android.os.PowerManager')
 
 class ScreenWidget(BoxLayout):
-    """बॉक्स 3 की 4x10 मैट्रिक्स की हर एक मिनी स्क्रीन का यूआई विजेट"""
+    """BOX 3 की 4x10 Matrix की हर एक मिनी स्क्रीन का UI विजेट"""
     def __init__(self, screen_id, **kwargs):
         super().__init__(orientation='vertical', padding=2, spacing=2, **kwargs)
         self.screen_id = screen_id
         
-        # स्टेटस लाइन (LED इंडिकेटर बत्ती + स्क्रीन आईडी)
+        # स्टेटस line (LED इंडिकेटर बत्ती + स्क्रीन आईडी)
         status_row = BoxLayout(orientation='horizontal', size_hint_y=0.4)
         self.lbl_id = Label(text=f"SCR-{screen_id:02d}", font_size='11sp', bold=True)
         status_row.add_widget(self.lbl_id)
@@ -55,7 +55,7 @@ class ScreenWidget(BoxLayout):
             elif color_name == "yellow":
                 self.led_color.rgba = (1, 1, 0, 1)   # 🟡 पीला: तैयार (आईपी एलोकेटेड)
             elif color_name == "green":
-                self.led_color.rgba = (0, 1, 0, 1)     # 🟢 हरा: मीडिया एक्टिवली प्लेइंग
+                self.led_color.rgba = (0, 1, 0, 1)     # 🟢 हरा: मीडिया कुंजी एक्टिवली प्लेइंग
         Clock.schedule_once(update_ui)
 
 class ArchitectMediaEngine(App):
@@ -77,13 +77,12 @@ class ArchitectMediaEngine(App):
         box1_layout = BoxLayout(orientation='vertical', spacing=2)
         box1_layout.add_widget(Label(text="📥 BOX 1: Master Link Input Engine", size_hint_y=0.15, bold=True))
         self.txt_links_input = TextInput(
-            hint_text="यहाँ अपने यूट्यूब लिंक्स पेस्ट करें (Shorts, Music, Videos - हर लाइन में एक लिंक)...", 
+            hint_text="यहाँ अपने यूट्यूब लिंक्स पेस्ट करें (Shorts, Music, Videos - हर लाइन में एक link)...", 
             multiline=True,
             background_color=(0.15, 0.15, 0.15, 1),
             foreground_color=(1, 1, 1, 1)
         )
         box1_layout.add_widget(self.txt_links_input)
-        top_split_panel.add_widget(box1_layout)
         
         # BOX 2: लाइव सिमुलेशन प्रोग्रेस मॉनिटर (स्क्रॉलेबल)
         box2_layout = BoxLayout(orientation='vertical', spacing=2)
@@ -95,8 +94,9 @@ class ArchitectMediaEngine(App):
             foreground_color=(0, 1, 0, 1) # क्लासिक ग्रीन कंसोल लुक 📟
         )
         box2_layout.add_widget(self.txt_monitor_display)
-        top_split_panel.add_widget(box2_layout)
         
+        top_split_panel.add_widget(box1_layout)
+        top_split_panel.add_widget(box2_layout)
         main_view.add_widget(top_split_panel)
         
         # 📱 BOX 3: 4x10 लाइव स्क्रीन मैट्रिक्स मॉनिटर
@@ -148,7 +148,7 @@ class ArchitectMediaEngine(App):
         Clock.schedule_once(update_text)
 
     def refresh_box2_stats_dashboard(self):
-        """बॉक्स 2 के डैशबोर्ड को रिफ्रेश करना (URLs | प्रोग्रेस | लूप काउंट)"""
+        """box 2 के डैशबोर्ड को रिफ्रेश करना (URLs | प्रोग्रेस | लूप काउंट)"""
         def update_dashboard(dt):
             dashboard_text = "--- BOX 2: ACTIVE LINKS DASHBOARD ---\n"
             for url, stats in self.links_database.items():
@@ -180,7 +180,7 @@ class ArchitectMediaEngine(App):
             threading.Thread(target=self.sequential_matrix_initializer, daemon=True).start()
 
     def sequential_matrix_initializer(self):
-        """आपके निर्देशानुसार, ऐप 40 अलग-अलग स्क्रीन्स को एक-एक करके नेटवर्क आवंटित करेगी"""
+        """भारत के निर्देशानुसार, ऐप 40 अलग-अलग स्क्रीन्स को एक-एक करके नेटवर्क आवंटित करेगी"""
         for scr_id in range(1, 41):
             if not self.is_running: break
             
@@ -199,11 +199,40 @@ class ArchitectMediaEngine(App):
             random.shuffle(local_shuffled_list)
             
             # बत्ती हरी करना 🟢 (WebView Active Layer)
-            # यहाँ एंड्रॉइड का कस्टमाइज्ड जावा स्क्रिप्ट और हेडलेस वेबव्यू टनल इंजेक्ट होगा
-            fake_ip = f"127.0.0.1:90{scr_id:02d}" # सिम्युलेटेड टॉर लोकल पोर्ट टनल
+            fake_ip = f"127.0.0.1:90{scr_id:02d}" # स्यूडो टॉर लोकल पोर्ट टनल
             self.matrix_screens[scr_id].change_indicator_light("green", f"Proxy: {fake_ip}")
             
             for url in local_shuffled_list:
                 if not self.is_running: break
                 
                 # इस URL का मालिकाना हक इस स्क्रीन को देना (डैशबोर्ड अपडेट के लिए)
+                self.links_database[url][1] = scr_id
+                self.refresh_box2_stats_dashboard()
+                
+                # --- [जावास्क्रिप्ट DOM बाईपास इंजेक्शन यहाँ काम करेगा] ---
+                # 1. म्यूट वीडियो + लो क्वालिटी 144p फ़ोर्स करना
+                # 2. एड्स को 16x स्पीड पर स्किप करना
+                # 3. कुकी नोटिस और पॉप-अप्स को ऑटो-डिसमिस करना
+                time.sleep(12) # सिम्युलेटेड प्ले टाइम (वीडियो लोड और प्लेबैक चक्र)
+                # ----------------------------------------------------
+                
+                # मीडिया पूरा होने पर काउंट 1 बढ़ाना
+                self.links_database[url][0] += 1
+                self.links_database[url][1] = None # रिलीज यूआरएल
+            
+            # एक राउंड पूरा होने पर स्क्रीन डिस्कनेक्ट होगी और वापस पीली 🟡 होकर नई IP मांगेगी
+            if self.is_running:
+                self.matrix_screens[scr_id].change_indicator_light("yellow", "Rotating Tor IP...")
+                time.sleep(3) # टॉर सर्किट रोटेशन (NEWNYM) के लिए बफ़र टाइम
+
+    def kill_all_processes(self, instance):
+        self.is_running = False
+        if platform == 'android' and self.wake_lock:
+            if self.wake_lock.isHeld():
+                self.wake_lock.release()
+        self.push_monitor_log("[SYSTEM] Force Stop Triggered. All virtual threads terminated safely.")
+        for s_id in range(1, 41):
+            self.matrix_screens[s_id].change_indicator_light("red", "OFFLINE")
+
+if __name__ == '__main__':
+    ArchitectMediaEngine().run()
