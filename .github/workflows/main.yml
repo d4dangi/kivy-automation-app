@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # स्टेबल एनवायरमेंट के लिए
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout Code
@@ -20,12 +20,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10' # एकदम स्टेबल पायथन वर्जन Kivy के लिए
+        python-version: '3.10'
 
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl traditional-awk
+        # ⚡ यहाँ से traditional-awk को हटा दिया गया है ताकि कोई एरर न आए
+        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
 
     - name: Install Buildozer & Cython
       run: |
@@ -34,7 +35,6 @@ jobs:
 
     - name: Build with Buildozer
       run: |
-        # नेटिव रनर में यह बिना रूट के चलेगा, इसलिए कोई y/n का पॉपअप नहीं आएगा!
         buildozer android debug
       env:
         ACCEPT_SDK_LICENSE_ACCEPTANCE: 'y'
