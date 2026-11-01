@@ -1,4 +1,4 @@
-name: Build Android APK with Native Buildozer
+name: Build Android APK with Official Buildozer Action
 
 on:
   workflow_dispatch:
@@ -17,39 +17,15 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build APK with Buildozer Action
+      uses: ActionDesk/buildozer-action@v1
       with:
-        python-version: '3.11'
+        buildozer_version: stable
+        command: buildozer android debug
+        repository_root: .
 
-    - name: Install System Dependencies & Build Tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf automake libtool libtool-bin pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
-
-    - name: Install Buildozer & Cython
-      run: |
-        pip install --upgrade pip
-        pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
-
-    - name: Fix Buildozer Hardcoded Path Trap
-      run: |
-        sudo mkdir -p /usr/local/lib/android/sdk/tools/bin/
-        sudo ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager
-        
-        sudo mkdir -p /usr/local/lib/android/sdk/build-tools/34.0.0/
-        sudo ln -sf /usr/bin/aidl /usr/local/lib/android/sdk/build-tools/34.0.0/aidl
-
-    - name: Force Accept System SDK Licenses
-      run: |
-        yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-
-    - name: Build with Buildozer
-      run: |
-        export ANDROID_HOME=/usr/local/lib/android/sdk
-        export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
-        export ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/25.2.9519653
-        export ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/25.2.9519653
-        export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/25.2.9519653
-        
-        buildozer android debug
+    - name: Upload Finished APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Finished-Android-APK
+        path: bin/*.apk
