@@ -11,19 +11,14 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Cache Buildozer Global Directory
-      uses: actions/cache@v4
-      with:
-        path: .buildozer
-        key: ${{ runner.os }}-buildozer-${{ github.run_id }}
-        restore-keys: |
-          ${{ runner.os }}-buildozer-
-
-    - name: Build APK using Official Kivy Docker Image
-      uses: docker://kivy/buildozer:latest
-      with:
-        # ⚡ yes | लगाने से [y/n] वाले सवाल का जवाब क्लाउड खुद 'yes' दे देगा
-        args: sh -c "yes | buildozer android debug"
+    - name: Build APK inside Fixed Docker Shell
+      run: |
+        # ⚡ यहाँ हमारा 'yes' इनपुट सीधे Docker के अंदर फोर्सफुली ट्रांसफर हो जाएगा
+        yes | docker run --rm \
+          -v ${{ github.workspace }}:/github/workspace \
+          --workdir /github/workspace \
+          kivy/buildozer:latest \
+          buildozer android debug
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
