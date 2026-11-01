@@ -25,7 +25,10 @@ jobs:
     - name: Install System Dependencies & Build Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip autoconf automake libtool libtool-bin pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
+        sudo apt-get install -y git zip unzip autoconf automake libtool libtool-bin m4 pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev aidl
+        
+        # मैक्रो रिपोजिटरी को फोर्स-अपडेट करना ताकि C-level क्रैश रुक जाए
+        sudo ln -sf /usr/share/aclocal/libtool.m4 /usr/share/aclocal/ltoptions.m4
 
     - name: Install Buildozer & Cython
       run: |
@@ -52,13 +55,7 @@ jobs:
         export ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/25.2.9519653
         export ANDROID_NDK=/usr/local/lib/android/sdk/ndk/25.2.9519653
         
-        # ⚡ हमने 'clean' कमांड को हटा दिया है ताकि FileNotFoundError का नामो निशान मिट जाए
+        # ⚡ पुराने libffi टूटे हुए मैक्रोज़ के क्रैश को रोकने के लिए पर्यावरण को मजबूत करना
+        export P4A_RECONSTRUCT_ENV=1
+        
         buildozer android debug
-      env:
-        ACCEPT_SDK_LICENSE_ACCEPTANCE: 'y'
-
-    - name: Upload Finished APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Finished-Android-APK
-        path: bin/*.apk
