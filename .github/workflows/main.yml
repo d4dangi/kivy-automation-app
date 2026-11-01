@@ -34,15 +34,12 @@ jobs:
 
     - name: Fix Buildozer Hardcoded Path Trap
       run: |
-        # ⚡ वह लेगेसी फोल्डर स्ट्रक्चर बनाना जिसे Buildozer आंतरिक रूप से ढूंढ रहा है
         sudo mkdir -p /usr/local/lib/android/sdk/tools/bin/
-        
-        # सर्वर के असली sdkmanager को उस लेगेसी पाथ से लिंक कर देना ताकि Buildozer कंफ्यूज न हो
         sudo ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager
         
         # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
-        sudo mkdir -p /usr/local/lib/android/sdk/build-tools/33.0.0/
-        sudo ln -sf /usr/bin/aidl /usr/local/lib/android/sdk/build-tools/33.0.0/aidl
+        sudo mkdir -p /usr/local/lib/android/sdk/build-tools/34.0.0/
+        sudo ln -sf /usr/bin/aidl /usr/local/lib/android/sdk/build-tools/34.0.0/aidl
 
     - name: Force Accept System SDK Licenses
       run: |
