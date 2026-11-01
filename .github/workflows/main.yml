@@ -22,7 +22,8 @@ jobs:
     - name: Build APK using Official Kivy Docker Image
       uses: docker://kivy/buildozer:latest
       with:
-        args: buildozer android debug
+        # ⚡ Root वार्निंग को बायपास करने के लिए warn_on_root=0 पर्यावरण में इंजेक्ट किया गया है
+        args: buildozer --global warn_on_root=0 android debug
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
