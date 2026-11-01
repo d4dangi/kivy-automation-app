@@ -20,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11' # इसे भी 3.11 पर सिंक कर दिया गया है ताकि hostpython3 कंफ्यूज न हो
 
     - name: Install System Dependencies
       run: |
@@ -37,7 +37,6 @@ jobs:
         sudo mkdir -p /usr/local/lib/android/sdk/tools/bin/
         sudo ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager
         
-        # कंपैटिबिलिटी के लिए aidl को भी सही जगह पर मैप करना
         sudo mkdir -p /usr/local/lib/android/sdk/build-tools/34.0.0/
         sudo ln -sf /usr/bin/aidl /usr/local/lib/android/sdk/build-tools/34.0.0/aidl
 
